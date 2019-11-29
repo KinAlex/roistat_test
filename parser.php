@@ -1,17 +1,20 @@
 #!/usr/bin/php
 
 <?php
+
 require_once 'autoload.php';
 
-if ($argc > 1 && is_file($argv[1])) {
-    //TODO add DIC in future
+$inputFilePath = getopt('f:')['f'];
+if ($inputFilePath) {
+    //TODO use DIC
     $nginxLogParser = new src\NginxLogParser();
     $jsonFormatter = new src\JsonFormatter();
+    //TODO use psr-3
     $logger = new src\FileLogger('log.txt');
-    $parseOutput = (new src\LogParser($nginxLogParser, $jsonFormatter, $logger))->output($argv[1]);
+    $parseOutput = (new src\LogParser($nginxLogParser, $jsonFormatter, $logger))->output($inputFilePath);
     echo $parseOutput;
+
     exit;
 }
 
-echo 'Incorrect input log file.';
-?>
+echo "Incorrect input log file.\n";

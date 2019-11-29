@@ -1,26 +1,32 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: alex
- * Date: 24.10.18
- * Time: 23:44
- */
 
 namespace src;
-
 
 use src\Interfaces\FormatterInterface;
 use src\Interfaces\LoggerInterface;
 use src\Interfaces\ParserInterface;
+use Exception;
 
 class LogParser
 {
+    /**
+     * @var ParserInterface
+     */
     private $logParser;
+
+    /**
+     * @var FormatterInterface
+     */
     private $formatter;
+
+    /**
+     * @var LoggerInterface
+     */
     private $logger;
 
     /**
      * LogParser constructor.
+     *
      * @param ParserInterface $logParser
      * @param FormatterInterface $formatter
      * @param LoggerInterface $logger
@@ -32,13 +38,23 @@ class LogParser
         $this->logger = $logger;
     }
 
-    public function output(string $filePath)
+    /**
+     * Выводит спарсенное содержимое файла.
+     *
+     * @param string $filePath
+     *
+     * @return string
+     *
+     * @throws Exception в случае ошибки выполнения.
+     */
+    public function output(string $filePath): string
     {
         try {
             $outputData = $this->formatter->format($this->logParser->parse($filePath));
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->log($e->getMessage());
-            return ['error' => $e->getMessage()];
+
+            return $e->getMessage();
         }
 
         return $outputData;

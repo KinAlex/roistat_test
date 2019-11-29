@@ -1,20 +1,27 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: alex
- * Date: 25.10.18
- * Time: 0:40
- */
 
 namespace src;
 
-
-use http\Exception\InvalidArgumentException;
 use src\Interfaces\ParserInterface;
+use Generator;
 
+/**
+ * Class NginxLogParser
+ */
 class NginxLogParser implements ParserInterface
 {
-    private CONST REG_EXP = '/(.*) - - \[(.*)\] "(.{1,8}) (.*) (.*)" (\d{3}) (\d+) "(.*)" "(.*)"/';
+    /**
+     * Регулярное выражение, по которому разбивается лог.
+     *
+     * @var string
+     */
+    private $regExp= '/(.*) - - \[(.*)\] "(.{1,8}) (.*) (.*)" (\d{3}) (\d+) "(.*)" "(.*)"/';
+
+    /**
+     * Список ботов.
+     *
+     * @var array
+     */
     private $bots = [
         'Google' => 'Googlebot',
         'Bing' => 'Bingbot',
@@ -28,10 +35,17 @@ class NginxLogParser implements ParserInterface
         'Alexa' => 'ia_archiver',
     ];
 
+    /**
+     * Парсит файл лога.
+     *
+     * @param string $filePath
+     *
+     * @return array
+     */
     public function parse(string $filePath) : array
     {
         if (!file_exists($filePath)) {
-            throw new InvalidArgumentException('Incorrect file path.');
+            throw new \InvalidArgumentException('Incorrect file path.');
         }
 
         $views = 0;
@@ -40,15 +54,10 @@ class NginxLogParser implements ParserInterface
         $urls = [];
         $statusCodes = [];
         foreach ($this->getRows($filePath) as $row) {
-            preg_match(self::REG_EXP, $row, $matches);
-            $ip = $matches[1];
-            $date = $matches[2];
-            $requestType = $matches[3];
+            preg_match($this->regExp, $row, $matches);
             $url = $matches[4];
-            $protocol = $matches[5];
             $status = $matches[6];
             $bytesSent = $matches[7];
-            $referer = $matches[8];
             $userAgent = $matches[9];
 
             $urls[$url] = 1;
@@ -76,7 +85,14 @@ class NginxLogParser implements ParserInterface
         ];
     }
 
-    private function getRows($filePath)
+    /**
+     * Получаем генератор.
+     *
+     * @param $filePath
+     *
+     * @return Generator
+     */
+    private function getRows($filePath): Generator
     {
         $f = fopen($filePath, 'r');
         try {
@@ -88,7 +104,10 @@ class NginxLogParser implements ParserInterface
         }
     }
 
-    public function setBots(array $botsArray)
+    /**
+     * @param array $botsArray
+     */
+    public function setBots(array $botsArray): void
     {
         $this->bots = $botsArray;
     }

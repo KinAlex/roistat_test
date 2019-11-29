@@ -1,15 +1,20 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: alex
- * Date: 25.10.18
- * Time: 0:07
- */
 
 namespace src\Interfaces;
 
-
+/**
+ * Interface FormatterInterface
+ *
+ *
+ */
 interface FormatterInterface
 {
-    public function format(array $array);
+    /**
+     * Преобразует массив в определенную структуру.
+     *
+     * @param array $array
+     *
+     * @return string
+     */
+    public function format(array $array): string;
 }
