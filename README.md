@@ -1,2 +1,2 @@
 # roistat_test
-php parser.php ./access_log
+php parser.php -f ./access_log
